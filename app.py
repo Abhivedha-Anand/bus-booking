@@ -266,7 +266,7 @@ def ticket_tracking():
                 'total_fare': ticket[10],
                 'booking_status': ticket[9]
             })
-
-        return render_template('tickettrack.html', tickets=ticket_list)
+        print(ticket_list['user_name'])
+        return render_template('tickettrack.html', ticket=ticket_list)
 if __name__ == '__main__':
     app.run(debug=True)

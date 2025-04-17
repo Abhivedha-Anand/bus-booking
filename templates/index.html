@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>No Seats Available</title>
+    <title>Video Background Animation</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1 class="title">No Seats Available</h1>
-        <p class="message">Sorry, there are no seats available for the bus you booked at this time.</p>
-        <p class="details">Please try booking for a different bus or check back later.</p>
-        <a href="index.html" class="button">Go Back to Home</a>
+    <div class="video-background">
+        <video autoplay muted loop id="bg-video">
+            <source src="../static/images/6543340-uhd_4096_1974_30fps.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <div class="content">
+        <h1>Welcome to the Bus Ticket Booking!</h1>
+        <p>Explore and book your tickets now.</p>
     </div>
 </body>
 </html>
