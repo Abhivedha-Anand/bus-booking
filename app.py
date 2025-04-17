@@ -135,8 +135,13 @@ def ticket_confirmation(bus_id):
         'Pending')
     cursor.execute(sql1, val1)
     db.commit()
-    
-    return render_template('ticketconf.html' , ticket = ticket, detail = detail)
+
+    sql2 = "SELECT ticket_id FROM tickets WHERE bus_id = %s AND user_name = %s AND travel_date = %s AND booking_status = 'Pending'"
+    val2 = (bus_id, ticket[0]['user_name'], detail['travel_date']) 
+    cursor.execute(sql2, val2)
+    ticket_id = cursor.fetchone()
+   
+    return render_template('ticketconf.html' , ticket = ticket, detail = detail, ticket_id = ticket_id[0])
 
 @app.route('/book_ticket/<int:bus_id>', methods=['GET'])
 def book_ticket(bus_id):
@@ -158,8 +163,13 @@ def book_ticket(bus_id):
         return render_template('bookticket.html', bus=bus_dict)
     
 @app.route('/booking-success', methods=['POST'])
-def booking_success(bus_id):
-    sql = "ALTER TABLE tickets" 
+def booking_success(ticket_id):
+    ticket_id = request.form['ticket_id']
+    sql = "UPDATE tickets SET booking_status = 'Confirmed' WHERE ticket_id = %s and booking_status = 'Pending'" 
+    val = (ticket_id,)
+    cursor.execute(sql, val)
+    db.commit()
+
     return render_template('success.html')
 
 if __name__ == '__main__':

@@ -36,7 +36,6 @@
     </header>
     <div class="container-box">
         <div class="right-panel">
-            <form action="{{ url_for('booking_success', ticket=ticket, detail=detail, total_fare=total_fare) }}" method="POST">
             <h4 class="mb-2"><b>Confirm Booking for {{ detail.bus_name}} <br> {{ detail.from_place }} <i class="fas fa-angle-double-right"></i> {{ detail.to_place }}</b></h4>
             <div class="mb-2">
                 <p><strong>Passenger Name: </strong> {{ ticket[0].user_name }}</p>
@@ -65,10 +64,11 @@
                 <p><strong>Total Fare:</strong> ₹{{ (ticket[0]['adult_count'] | int * detail.fare_amount) + (ticket[0]['child_count'] | int * (detail.fare_amount // 2)) }}</p>
             </div>
             <div class="mb-2">
-                <button type = "submit" class="submit-btn">Confirm Booking</button>
+                    <form action="{{ url_for('booking_success', ticket_id = ticket_id) }}" method="POST">
+                        <input type="hidden" name="ticket" value="{{ ticket[0].ticket_id }}">
+                        <button type="submit" class="submit-btn">Confirm Booking</button>
+                    </form>
             </div>
-            </form>
-          </form>
           </div>
         </div>
       </div>
