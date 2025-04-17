@@ -64,7 +64,7 @@ def bus_route():
 
 
         sql = """
-                SELECT b.bus_id, b.bus_name, b.from_place, b.to_place, b.departure_time, b.arrival_time, bf.fare_amount
+                SELECT b.bus_id, b.bus_name, b.from_place, b.to_place, b.departure_time, b.arrival_time, bf.fare_amount,b.available_seats
                 FROM bus b
                 join bus_fare bf on b.bus_id = bf.bus_id
                 WHERE b.from_place = %s AND b.to_place = %s AND b.travel_date = %s;
@@ -83,7 +83,8 @@ def bus_route():
                 'to': bus[3],
                 'departure_time': bus[4],
                 'arrival_time': bus[5],
-                'price': bus[6]
+                'price': bus[6],
+                'available_seats': bus[7]
             })
         return render_template('busroute.html', buses=bus_list)
 
@@ -97,8 +98,9 @@ def ticket_confirmation(bus_id):
         "adult_count" : int(request.form['adult-count']),
         "child_count" : int(request.form['child-count']),
         "infant_count" : int(request.form['infant-count']),
-    }]
 
+    }]
+    total_seat = ticket[0]['adult_count'] + ticket[0]['child_count'] + ticket[0]['infant_count']
     sql = """
             SELECT bf.fare_amount, b.bus_name, bf.from_place, bf.to_place, b.travel_date
             FROM bus_fare bf
@@ -118,11 +120,12 @@ def ticket_confirmation(bus_id):
     'travel_date': row[4],
     'adult_fare': row[0] ,
     'child_fare': row[0] //2,
+
     }
 
     sql1= """
-            INSERT INTO tickets (bus_id, user_name, travel_date, adult_count, child_count, infant_count, total_fare, booking_status) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+            INSERT INTO tickets (bus_id, user_name, travel_date, adult_count, child_count, infant_count, total_seat, total_fare, booking_status) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
         """
     val1 = (
         bus_id, 
@@ -131,8 +134,10 @@ def ticket_confirmation(bus_id):
         ticket[0]['adult_count'],
         ticket[0]['child_count'],
         ticket[0]['infant_count'],
+        total_seat,
         (ticket[0]['adult_count'] * detail['fare_amount']) + (ticket[0]['child_count'] * (detail['fare_amount'] // 2)),
-        'Pending')
+        'Pending'
+        )
     cursor.execute(sql1, val1)
     db.commit()
 
@@ -162,15 +167,70 @@ def book_ticket(bus_id):
         }
         return render_template('bookticket.html', bus=bus_dict)
     
-@app.route('/booking-success', methods=['POST'])
+@app.route('/booking-success/<int:ticket_id>', methods=['POST'])
 def booking_success(ticket_id):
-    ticket_id = request.form['ticket_id']
     sql = "UPDATE tickets SET booking_status = 'Confirmed' WHERE ticket_id = %s and booking_status = 'Pending'" 
     val = (ticket_id,)
     cursor.execute(sql, val)
     db.commit()
 
-    return render_template('success.html')
+    sql0 = """
+            UPDATE bus
+            SET available_seats = available_seats - (
+                SELECT total_seat 
+                FROM tickets 
+                WHERE ticket_id = %s
+            )
+            WHERE bus_id = (
+                SELECT bus_id 
+                FROM tickets 
+                WHERE ticket_id = %s 
+            );
+
+            """
+    val0 = (ticket_id, ticket_id)
+    cursor.execute(sql0, val0)
+    db.commit()
+
+    sql1 = """
+            SELECT b.bus_name, b.from_place, b.to_place, b.travel_date, bf.fare_amount
+            FROM tickets t
+            JOIN bus b ON t.bus_id = b.bus_id
+            JOIN bus_fare bf ON b.bus_id = bf.bus_id
+            WHERE t.ticket_id = %s;
+            """
+    val1 = (ticket_id,)
+    cursor.execute(sql1, val1)
+    row = cursor.fetchone()
+
+    detail = {
+        'bus_name': row[0],
+        'from_place': row[1],
+        'to_place': row[2],
+        'travel_date': row[3],
+        'fare_amount': row[4]
+    }
+
+    sql2 = """
+            SELECT * FROM tickets WHERE ticket_id = %s;
+            """
+    val2 = (ticket_id,)
+    cursor.execute(sql2, val2)
+    tickets = cursor.fetchall()
+    ticket_list = []
+    for ticket in tickets:
+        ticket_list.append({
+            'ticket_id': ticket[0],
+            'bus_id': ticket[1],
+            'user_name': ticket[2],
+            'travel_date': ticket[3],
+            'adult_count': ticket[4],
+            'child_count': ticket[5],
+            'infant_count': ticket[6],
+            'total_fare': ticket[7],
+            'booking_status': ticket[8]
+        })
+    return render_template('success.html', ticket=ticket_list[0], detail=detail)
 
 if __name__ == '__main__':
     app.run(debug=True)
