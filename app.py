@@ -12,10 +12,6 @@ db = pymysql.connect(
 
 cursor = db.cursor()
 
-
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'
-
 @app.route('/')
 def home():
     return render_template('home.html') 
@@ -84,12 +80,27 @@ def bus_route():
                 'departure_time': bus[4],
                 'arrival_time': bus[5],
                 'price': bus[6],
-                'available_seats': bus[7]
+                'available_seats': bus[7] if bus[7] > 0 else 'No seats available'
             })
         return render_template('busroute.html', buses=bus_list)
 
 @app.route('/ticket-confirmation/<int:bus_id>', methods=['POST'])
 def ticket_confirmation(bus_id): 
+    sql = "SELECT * FROM bus WHERE bus_id = %s"
+    val = (bus_id,)
+    cursor.execute(sql, val)
+    bus = cursor.fetchone()
+
+    bus_detail = {
+        'bus_id': bus[0],
+        'bus_name': bus[1],  
+        'from_place': bus[2],
+        'to_place': bus[3],
+        'departure_time': bus[4],
+        'arrival_time': bus[5],
+        'price': bus[6]
+    }
+
     ticket = [{
         "bus_id" : bus_id,
         "user_name" : request.form['user-name'],
@@ -106,9 +117,9 @@ def ticket_confirmation(bus_id):
             FROM bus_fare bf
             join bus b
             on b.bus_id = bf.bus_id
-            WHERE bf.bus_id = %s;
+            WHERE bf.from_place = %s and bf.to_place = %s;
         """
-    val = (bus_id,)
+    val = (bus_detail['from_place'], bus_detail['to_place'])
     cursor.execute(sql, val)
     row = cursor.fetchone()
 
@@ -124,13 +135,15 @@ def ticket_confirmation(bus_id):
     }
 
     sql1= """
-            INSERT INTO tickets (bus_id, user_name, travel_date, adult_count, child_count, infant_count, total_seat, total_fare, booking_status) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
+            INSERT INTO tickets (bus_id, user_name, travel_date,from_place, to_place,  adult_count, child_count, infant_count, total_seat, total_fare, booking_status) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
         """
     val1 = (
         bus_id, 
         ticket[0]['user_name'], 
         detail['travel_date'], 
+        detail['from_place'],
+        detail['to_place'],
         ticket[0]['adult_count'],
         ticket[0]['child_count'],
         ticket[0]['infant_count'],
@@ -146,7 +159,7 @@ def ticket_confirmation(bus_id):
     cursor.execute(sql2, val2)
     ticket_id = cursor.fetchone()
    
-    return render_template('ticketconf.html' , ticket = ticket, detail = detail, ticket_id = ticket_id[0])
+    return render_template('ticketconf.html' , ticket = ticket, detail = detail, ticket_id = ticket_id[0],bus_detail = bus_detail)
 
 @app.route('/book_ticket/<int:bus_id>', methods=['GET'])
 def book_ticket(bus_id):
@@ -227,10 +240,33 @@ def booking_success(ticket_id):
             'adult_count': ticket[4],
             'child_count': ticket[5],
             'infant_count': ticket[6],
-            'total_fare': ticket[7],
+            'total_fare': ticket[9],
             'booking_status': ticket[8]
         })
     return render_template('success.html', ticket=ticket_list[0], detail=detail)
 
+@app.route('/ticket-tracking', methods=['GET'])
+def ticket_tracking():
+    if request.method == 'GET':
+        sql = "SELECT * FROM tickets"
+        cursor.execute(sql)
+        tickets = cursor.fetchall()
+        ticket_list = []
+        for ticket in tickets:
+            ticket_list.append({
+                'ticket_id': ticket[0],
+                'bus_id': ticket[1],
+                'user_name': ticket[2],
+                'travel_date': ticket[3],
+                'from_place': ticket[4],
+                'to_place': ticket[5],
+                'adult_count': ticket[6],
+                'child_count': ticket[7],
+                'infant_count': ticket[8],
+                'total_fare': ticket[10],
+                'booking_status': ticket[9]
+            })
+
+        return render_template('tickettrack.html', tickets=ticket_list)
 if __name__ == '__main__':
     app.run(debug=True)

@@ -117,6 +117,7 @@ select.form-select {
 .card-box {
     margin-top: 5px !important;
     margin-bottom: 0px !important;
+    line-height: 30px !important;
 }
 .space {
     height: 5px !important;
