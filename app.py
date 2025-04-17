@@ -260,8 +260,10 @@ def ticket_tracking():
         JOIN bus b ON t.bus_id = b.bus_id
         JOIN places pf ON b.from_place_id = pf.place_id
         JOIN places pt ON b.to_place_id = pt.place_id
+        where u.user_name=  %s
     """
-    cursor.execute(sql)
+    val=(session.get('user_name'),)
+    cursor.execute(sql,val)
     tickets = cursor.fetchall()
 
     ticket_list = []
@@ -274,7 +276,7 @@ def ticket_tracking():
             'from_place': ticket[4],
             'to_place': ticket[5]
         })
-
+    print(ticket_list)
     return render_template('tickettrack.html', tickets=ticket_list)
 
 if __name__ == '__main__':

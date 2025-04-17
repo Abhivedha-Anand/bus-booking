@@ -69,8 +69,7 @@
           </thead>
           <tbody>
             {% for ticket in tickets %}
-              {% if ticket.booking_status == "Confirmed" %}
-              
+              {% if ticket.booking_status == "confirmed" %}      
                 <tr>
                   <td>{{ ticket.ticket_id }}</td>
                   <td>{{ ticket.from_place }} <i class='fas fa-arrow-right' style='font-size:15px'></i> {{ ticket.to_place }}</td>
