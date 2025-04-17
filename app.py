@@ -237,11 +237,11 @@ def booking_success(ticket_id):
             'bus_id': ticket[1],
             'user_name': ticket[2],
             'travel_date': ticket[3],
-            'adult_count': ticket[4],
-            'child_count': ticket[5],
-            'infant_count': ticket[6],
-            'total_fare': ticket[9],
-            'booking_status': ticket[8]
+            'adult_count': ticket[6],
+            'child_count': ticket[7],
+            'infant_count': ticket[8],
+            'total_fare': ticket[11],
+            'booking_status': ticket[10]
         })
     return render_template('success.html', ticket=ticket_list[0], detail=detail)
 
@@ -266,7 +266,7 @@ def ticket_tracking():
                 'total_fare': ticket[10],
                 'booking_status': ticket[9]
             })
-        print(ticket_list['user_name'])
+
         return render_template('tickettrack.html', ticket=ticket_list)
 if __name__ == '__main__':
     app.run(debug=True)

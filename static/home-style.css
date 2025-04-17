@@ -27,18 +27,25 @@
 }
 .search-box {
     border-radius: 25px !important;
-    background: white !important;
     padding: 1.5% !important;
+    backdrop-filter: opacity(0.5);
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .text-box {
-    border: 0px solid #000000 !important;
+    border: none !important;
     border-radius: 25px !important;
     margin-top: 3% !important;
     padding: 0% !important;
-    font-size: 15px !important;
+    background-color: transparent !important;
+    font-size: medium !important;
+    color: white !important;
 }
 .from-to-box {
-    border: 1px solid aqua !important;
+    border: none !important;
     padding: 10px !important;
     border-radius: 5px !important;
     margin-left: 3% !important;

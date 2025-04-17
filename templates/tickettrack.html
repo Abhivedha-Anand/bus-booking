@@ -36,7 +36,7 @@
 </header>
 <div class="video-background">
   <video autoplay muted loop id="bg-video">
-      <source src="../static/images/6020095-hd_1920_1080_24fps.mp4" type="video/mp4">
+      <source src="../static/images/6543340-uhd_4096_1974_30fps.mp4" type="video/mp4">
       Your browser does not support the video tag.
   </video>
 </div>
@@ -58,16 +58,21 @@
               </tr>
             </thead>
             <tbody>
+              {% if tickets %}
               {% for ticket in tickets %}
               <tr class="table-row">
-                <td>{{ ticket.ticket_id }}</td>
-                <td>{{ ticket.user_name }}</td>
-                <td>{{ ticket.travel_date }}</td>
-                <td>{{ ticket.from_place }}</td>
-                <td>{{ ticket.to_place }}</td>
-                <td>{{ ticket.status }}</td>
+                <td>{{ ticket[0].ticket_id }}</td>
+                <td>{{ ticket[0].user_name }}</td>
+                <td>{{ ticket[0].travel_date }}</td>
+                <td>{{ ticket[0].from_place }}</td>
+                <td>{{ ticket[0].to_place }}</td>
+                <td>{{ ticket[0].status }}</td>
               </tr>
               {% endfor %}
+              {% else %}
+              <tr class="table-row">
+                <td colspan="6" class="text-center">No active tickets found.</td>
+              {% endif %}  
             </tbody>
           </table>
       </div>
