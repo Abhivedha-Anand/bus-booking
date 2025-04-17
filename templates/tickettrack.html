@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bus Listings</title>
+        <link rel="stylesheet" href="../static/tickettrack-style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    </head>
+<body>
+  <header>
+    <div class="container-header">
+        <div class = row>
+            <div class="col-md-2" style="width: 4%;"></div>
+            <div class="col-md-2">
+                <div class="row">
+                    <div class="col-md-6">
+                        <img src="../static/images/ChatGPT Image Apr 14, 2025, 02_53_33 PM.png" class="head-logo">
+                    </div>
+                    <div class="col-md-6" style="padding-left: 0px; margin-top: 6%;">
+                        <img src="../static/images/Screenshot 2025-04-14 163509.png" class="head-logo1">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-1 hihi1" style="margin-left: 6%; color: red;"></div>
+            <div class="col-md-1 hihi1"></div>
+            <div class="col-md-1 hihi1"></div>
+            <div class="col-md-1 hihi1"></div>
+            <div class="col-md-1 hihi2" style="width: 7% !important;margin-left: 4% !important;"></div>
+            <div class="col-md-1 hihi2"></div>
+            {% if session.get('user_logged_in') %}
+                    <div class="col-md-1 hihi2" ><i class="fas fa-ticket"></i><a class="header-link" href="{{ url_for('ticket_tracking') }}">Track Tickets</a></div>
+                    <div class="col-md-2 hihi2 dropdown">
+                        <i class="fas fa-user-check"></i>
+                        <a class="header-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Hi, {{ session.get('user_name') }} 
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            <!-- You can add more dropdown items here if needed -->
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="col-md-1 hihi2"><i class="fas fa-ticket"></i><a class="header-link" href="">Track Tickets</a></div>
+                    <div class="col-md-2 hihi2">
+                        <i class="fas fa-user-astronaut"></i>
+                        <a class="header-link" href="{{ url_for('login_user') }}">Login/Signup</a>
+                    </div>
+                    {% endif %}
+        </div>
+    </div>
+</header>
+  <div class="container margin" >
+    <h2 class="text-center text-white mb-5">🎫 Ticket Tracker Dashboard</h2>
+
+    <div class="glass-card mb-5">
+      <h4 class="section-title">Active Tickets</h4>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover ticket-table">
+          <thead>
+            <tr>
+              <th>Ticket ID</th>
+              <th style="width: 400px !important;">Route</th>
+              <th>Date</th>
+              <th>Passenger</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ticket in tickets %}
+              {% if ticket.booking_status == "Confirmed" %}
+              
+                <tr>
+                  <td>{{ ticket.ticket_id }}</td>
+                  <td>{{ ticket.from_place }} <i class='fas fa-arrow-right' style='font-size:15px'></i> {{ ticket.to_place }}</td>
+                  <td>{{ ticket.travel_date }}</td>
+                  <td>{{ ticket.user_name }}</td>
+                  <td><span class="badge bg-primary">{{ ticket.booking_status }}</span></td>              
+                </tr>
+          
+              {% endif %}
+            {% endfor %}
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

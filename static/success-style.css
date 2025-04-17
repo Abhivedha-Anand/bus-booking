@@ -1,3 +1,22 @@
+.success-container {
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: aqua;
+    border-left: 5px solid black;
+    border-radius: 10px;
+    box-shadow: 0 4px 80px rgba(255, 0, 0, 0.1);
+}
+.success-icon {
+    font-size: 50px;
+    color: #28a745;
+}
+.ticket-summary {
+    margin-top: 30px;
+}
+.btn-track, .btn-home {
+    margin: 10px 5px;
+}
 .container-header {
     background: white !important;
 }
@@ -10,11 +29,12 @@
     width: 160%;
 }
 .bg-img {
-    background: url("../static/images/header-transit.jpg") !important;
+    background: url("../static/images/1010291.jpg") !important;
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
     height: 593px;
+
 }
 .logo-txt {
     color: #000000 !important;
@@ -100,7 +120,7 @@
 input[type="list"]:focus {
     outline: none;
     box-shadow: none;
-}
+  }
 .custom-select-scroll {
     max-height: 200px; /* Scroll when height exceeds */
     overflow-y: auto;
@@ -113,12 +133,4 @@ select.form-select {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     padding: 10px;
     font-size: 1rem;
-}
-.card-box {
-    margin-top: 5px !important;
-    margin-bottom: 0px !important;
-    line-height: 30px !important;
-}
-.space {
-    height: 5px !important;
 }

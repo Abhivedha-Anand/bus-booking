@@ -125,11 +125,17 @@ def ticket_confirmation(bus_id):
     }]
 
     sql = """
-            SELECT bf.fare_amount, b.bus_name, bf.from_place, bf.to_place, b.travel_date
-            FROM bus_fare bf
-            join bus b
-            on b.bus_id = bf.bus_id
-            WHERE bf.bus_id = %s;
+            SELECT 
+            bf.fare_amount, 
+            b.bus_name, 
+            pf.place_name AS from_place, 
+            pt.place_name AS to_place, 
+            b.travel_date
+        FROM bus_fare bf
+        JOIN bus b ON b.bus_id = bf.bus_id
+        JOIN places pf ON b.from_place_id = pf.place_id
+        JOIN places pt ON b.to_place_id = pt.place_id
+        WHERE bf.bus_id = %s;
         """
     val = (bus_id,)
     cursor.execute(sql, val)
@@ -145,13 +151,15 @@ def ticket_confirmation(bus_id):
     'child_fare': row[0] //2,
     }
 
+    cursor.execute("SELECT user_id FROM users WHERE user_name = %s", (ticket[0]['user_name'],))
+    user=cursor.fetchone()
     sql1= """
-            INSERT INTO tickets (bus_id, user_name, travel_date, adult_count, child_count, infant_count, total_fare, booking_status) 
+            INSERT INTO tickets (bus_id, user_id, travel_date, adult_count, child_count, infant_count, total_fare, booking_status) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
         """
     val1 = (
         bus_id, 
-        ticket[0]['user_name'], 
+        user[0], 
         detail['travel_date'], 
         ticket[0]['adult_count'],
         ticket[0]['child_count'],
@@ -160,8 +168,18 @@ def ticket_confirmation(bus_id):
         'Pending')
     cursor.execute(sql1, val1)
     db.commit()
+    sql2 = "SELECT ticket_id FROM tickets WHERE bus_id = %s AND user_name = %s AND travel_date = %s AND booking_status = 'Pending'"
+    sql2 = """
+    SELECT ticket_id 
+    FROM tickets 
+    WHERE bus_id = %s AND user_id = %s AND travel_date = %s AND booking_status = 'Pending'
+"""
+    val2 = (bus_id, user[0], detail['travel_date'])
+
+    cursor.execute(sql2, val2)
+    ticket_id = cursor.fetchone()
     
-    return render_template('ticketconf.html' , ticket = ticket, detail = detail)
+    return render_template('ticketconf.html' , ticket = ticket, detail = detail, ticket_id = ticket_id[0])
 
 @app.route('/book_ticket/<int:bus_id>', methods=['GET'])
 def book_ticket(bus_id):
@@ -180,12 +198,84 @@ def book_ticket(bus_id):
             'arrival_time': bus[5],
             'price': bus[6]
         }
+        cursor.execute('SELECT place_name from places where place_id = %s',bus[2])
+        bus_dict['from_place']=cursor.fetchone()[0]
+        cursor.execute('SELECT place_name from places where place_id = %s',bus[3])
+        bus_dict['to_place']=cursor.fetchone()[0]
         return render_template('bookticket.html', bus=bus_dict)
     
 @app.route('/booking-success', methods=['POST'])
-def booking_success(bus_id):
-    sql = "ALTER TABLE tickets" 
-    return render_template('success.html')
+def booking_success():
+    ticket_id = request.form.get('ticket_id') or request.args.get('ticket_id')  # accepts from form or query
+    if not ticket_id:
+        return "Ticket ID missing", 400
+
+    sql = "UPDATE tickets SET booking_status = 'Confirmed' WHERE ticket_id = %s AND booking_status = 'Pending'" 
+    cursor.execute(sql, (ticket_id,))
+    db.commit()
+
+    # Get updated ticket info
+    sql2 = """
+        SELECT t.ticket_id, u.user_name, b.bus_name, pf.place_name, pt.place_name, t.travel_date,
+               (t.adult_count * bf.fare_amount + t.child_count * (bf.fare_amount / 2)) AS total_fare
+        FROM tickets t
+        JOIN users u ON t.user_id = u.user_id
+        JOIN bus b ON t.bus_id = b.bus_id
+        JOIN bus_fare bf ON bf.bus_id = b.bus_id
+        JOIN places pf ON b.from_place_id = pf.place_id
+        JOIN places pt ON b.to_place_id = pt.place_id
+        WHERE t.ticket_id = %s;
+    """
+    cursor.execute(sql2, (ticket_id,))
+    row = cursor.fetchone()
+
+    if row:
+        ticket = {
+            "ticket_id": row[0],
+            "user_name": row[1],
+            "total_fare": int(row[6])
+        }
+        detail = {
+            "bus_name": row[2],
+            "from_place": row[3],
+            "to_place": row[4],
+            "travel_date": row[5]
+        }
+        return render_template('success.html', ticket=ticket, detail=detail)
+    else:
+        return "Ticket not found", 404
+
+@app.route('/ticket-tracking', methods=['GET'])
+def ticket_tracking():
+    sql = """
+        SELECT 
+            t.ticket_id,
+            t.travel_date,
+            t.booking_status,
+            u.user_name,
+            pf.place_name AS from_place,
+            pt.place_name AS to_place
+        FROM tickets t
+        JOIN users u ON t.user_id = u.user_id
+        JOIN bus b ON t.bus_id = b.bus_id
+        JOIN places pf ON b.from_place_id = pf.place_id
+        JOIN places pt ON b.to_place_id = pt.place_id
+    """
+    cursor.execute(sql)
+    tickets = cursor.fetchall()
+
+    ticket_list = []
+    for ticket in tickets:
+        ticket_list.append({
+            'ticket_id': ticket[0],
+            'travel_date': ticket[1],
+            'booking_status': ticket[2],
+            'user_name': ticket[3],
+            'from_place': ticket[4],
+            'to_place': ticket[5]
+        })
+
+    return render_template('tickettrack.html', tickets=ticket_list)
 
 if __name__ == '__main__':
     app.run(debug=True)
