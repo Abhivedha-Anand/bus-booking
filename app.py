@@ -81,16 +81,18 @@ def bus_route():
         print(travel_date)
         sql = """
             SELECT b.bus_id, b.bus_name, 
-                   p1.place_name AS from_place, 
-                   p2.place_name AS to_place, 
-                   b.departure_time, b.arrival_time, 
-                   bf.fare_amount
-            FROM bus b
-            JOIN places p1 ON b.from_place_id = p1.place_id
-            JOIN places p2 ON b.to_place_id = p2.place_id
-            JOIN bus_fare bf ON b.bus_id = bf.bus_id
+                p1.place_name AS from_place, 
+                p2.place_name AS to_place, 
+                b.departure_time, b.arrival_time, 
+                bf.fare_amount,
+                b.available_seats
+            FROM bus AS b
+            JOIN places AS p1 ON b.from_place_id = p1.place_id
+            JOIN places AS p2 ON b.to_place_id = p2.place_id
+            JOIN bus_fare AS bf ON b.bus_id = bf.bus_id
             WHERE p1.place_name = %s AND p2.place_name = %s AND b.travel_date = %s;
         """
+
         val = (bus_from, bus_to, travel_date)
         cursor.execute(sql, val)
         buses = cursor.fetchall()
@@ -104,7 +106,8 @@ def bus_route():
                 'to': bus[3],
                 'departure_time': bus[4],
                 'arrival_time': bus[5],
-                'price': bus[6]
+                'price': bus[6],
+                'available_seats': bus[7]
             })
         return render_template('busroute.html', buses=bus_list)
 
