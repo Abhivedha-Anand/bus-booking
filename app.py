@@ -5,11 +5,11 @@ from datetime import date
 app = Flask(__name__)
 
 db = pymysql.connect(
-    host="127.0.0.1",       
+    host="172.31.15.140",       
     user="root",
-    password="root",
-    database="bus_booking",
-    port=3306,  
+    password="01022004",
+    database="bus_booking"
+    
 )
 
 cursor = db.cursor()
