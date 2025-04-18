@@ -3,18 +3,18 @@ body {
   font-family: 'Segoe UI', sans-serif;
 }
 .container-box {
-  max-width: 960px;
+  max-width: 40%;
   border-radius: 20px;
   overflow: hidden;
   background: #fff;
   display: flex;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
-  margin: 50px auto;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 1);
+  margin: 0% 30%;
 }
 .left-panel {
   background: linear-gradient(to bottom right, #23c0f4, #f2f5f4);
   padding: 40px;
-  width: 50%;
+  width: 100%;
 }
 .right-panel {
   background: url('https://i.pinimg.com/736x/d2/e1/ba/d2e1ba32d9495b778a9a66dcb6bd1a14.jpg') no-repeat center center;
@@ -62,7 +62,7 @@ body {
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
-  height: 86vh !important;
+  height: 88vh !important;
   width: 100vw !important;
   padding-top: 4% !important;
 
