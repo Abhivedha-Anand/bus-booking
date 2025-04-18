@@ -27,10 +27,27 @@
                 <div class="col-md-1 hihi1"></div>
                 <div class="col-md-1 hihi1"></div>
                 <div class="col-md-1 hihi1"></div>
-                <div class="col-md-1 hihi2" style="width: 7% !important;margin-left: 4% !important;"><i class="fas fa-percentage"></i><a class="header-link" href="">Offers</a></div>
-                <div class="col-md-1 hihi2"><i class="fas fa-ticket"></i><a class="header-link" href="">Track Tickets</a></div>
-                <div class="col-md-1 hihi2"><i class="fas fa-headset"></i><a class="header-link" href="">Need Help?</a></div>
-                <div class="col-md-1 hihi2"><i class="fas fa-user-astronaut"></i><a class="header-link" href="{{ url_for('login_user') }}">Login/Signup</a></div>
+                <div class="col-md-1 hihi2" style="width: 7% !important;margin-left: 4% !important;"></div>
+                <div class="col-md-1 hihi2"></div>
+                {% if session.get('user_logged_in') %}
+                    <div class="col-md-1 hihi2" ><i class="fas fa-ticket"></i><a class="header-link" href="{{ url_for('ticket_tracking') }}">Track Tickets</a></div>
+                    <div class="col-md-2 hihi2 dropdown">
+                        <i class="fas fa-user-check"></i>
+                        <a class="header-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Hi, {{ session.get('user_name') }} 
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            <!-- You can add more dropdown items here if needed -->
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="col-md-1 hihi2"><i class="fas fa-ticket"></i><a class="header-link" href="">Track Tickets</a></div>
+                    <div class="col-md-2 hihi2">
+                        <i class="fas fa-user-astronaut"></i>
+                        <a class="header-link" href="{{ url_for('login_user') }}">Login/Signup</a>
+                    </div>
+                    {% endif %}
             </div>
         </div>
     </header>
@@ -51,10 +68,10 @@
                             <div>
                                 <h5 class="card-title">{{ bus.name }}</h5>
                                 <p class="card-text">
-                                    <b>Route:</b> {{ bus.from }} → {{ bus.to }} <br>
-                                    <b>Departure:</b> {{ bus.departure_time }} <br>
-                                    <b>Arrival:</b> {{ bus.arrival_time }} <br>
-                                    <b>Seats Available:</b> {{ bus.available_seats }} <br>
+                                    Route: {{ bus.from }} → {{ bus.to }} <br>
+                                    Departure: {{ bus.departure_time }} <br>
+                                    Arrival: {{ bus.arrival_time }} <br>
+                                    Available Seats: <strong>{{ bus.available_seats }}</strong>
                                 </p>
                             </div>
                             <div>

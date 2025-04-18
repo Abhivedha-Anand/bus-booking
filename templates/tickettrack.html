@@ -27,54 +27,62 @@
             <div class="col-md-1 hihi1"></div>
             <div class="col-md-1 hihi1"></div>
             <div class="col-md-1 hihi1"></div>
-            <div class="col-md-1 hihi2" style="width: 7% !important;margin-left: 4% !important;"><i class="fas fa-percentage"></i><a class="header-link" href="">Offers</a></div>
-            <div class="col-md-1 hihi2"><i class="fas fa-ticket"></i><a class="header-link" href="">Track Tickets</a></div>
-            <div class="col-md-1 hihi2"><i class="fas fa-headset"></i><a class="header-link" href="">Need Help?</a></div>
-            <div class="col-md-1 hihi2"><i class="fas fa-user-astronaut"></i><a class="header-link" href="{{ url_for('login_user') }}">Login/Signup</a></div>
+            <div class="col-md-1 hihi2" style="width: 7% !important;margin-left: 4% !important;"></div>
+            <div class="col-md-1 hihi2"></div>
+            {% if session.get('user_logged_in') %}
+                    <div class="col-md-1 hihi2" ><i class="fas fa-ticket"></i><a class="header-link" href="{{ url_for('ticket_tracking') }}">Track Tickets</a></div>
+                    <div class="col-md-2 hihi2 dropdown">
+                        <i class="fas fa-user-check"></i>
+                        <a class="header-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Hi, {{ session.get('user_name') }} 
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            <!-- You can add more dropdown items here if needed -->
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="col-md-1 hihi2"><i class="fas fa-ticket"></i><a class="header-link" href="">Track Tickets</a></div>
+                    <div class="col-md-2 hihi2">
+                        <i class="fas fa-user-astronaut"></i>
+                        <a class="header-link" href="{{ url_for('login_user') }}">Login/Signup</a>
+                    </div>
+                    {% endif %}
         </div>
     </div>
 </header>
-<div class="video-background">
-  <video autoplay muted loop id="bg-video">
-      <source src="../static/images/6543340-uhd_4096_1974_30fps.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-  </video>
-</div>
   <div class="container margin" >
     <h2 class="text-center text-white mb-5">🎫 Ticket Tracker Dashboard</h2>
 
     <div class="glass-card mb-5">
       <h4 class="section-title">Active Tickets</h4>
       <div class="table-responsive">
-          <table class="table table-striped table-hover tb-bg table-table">
-            <thead>
-              <tr>
-                <th>Ticket ID</th>
-                <th>Passenger Name</th>
-                <th>Travel Date</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% if tickets %}
-              {% for ticket in tickets %}
-              <tr class="table-row">
-                <td>{{ ticket[0].ticket_id }}</td>
-                <td>{{ ticket[0].user_name }}</td>
-                <td>{{ ticket[0].travel_date }}</td>
-                <td>{{ ticket[0].from_place }}</td>
-                <td>{{ ticket[0].to_place }}</td>
-                <td>{{ ticket[0].status }}</td>
-              </tr>
-              {% endfor %}
-              {% else %}
-              <tr class="table-row">
-                <td colspan="6" class="text-center">No active tickets found.</td>
-              {% endif %}  
-            </tbody>
-          </table>
+      <table class="table table-striped table-hover ticket-table">
+          <thead>
+            <tr>
+              <th>Ticket ID</th>
+              <th style="width: 400px !important;">Route</th>
+              <th>Date</th>
+              <th>Passenger</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ticket in tickets %}
+              {% if ticket.booking_status == "confirmed" %}      
+                <tr>
+                  <td>{{ ticket.ticket_id }}</td>
+                  <td>{{ ticket.from_place }} <i class='fas fa-arrow-right' style='font-size:15px'></i> {{ ticket.to_place }}</td>
+                  <td>{{ ticket.travel_date }}</td>
+                  <td>{{ ticket.user_name }}</td>
+                  <td><span class="badge bg-primary">{{ ticket.booking_status }}</span></td>              
+                </tr>
+          
+              {% endif %}
+            {% endfor %}
+            
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
