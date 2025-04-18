@@ -10,20 +10,14 @@ body {
   }
 
   .glass-card {
-<<<<<<< HEAD
     background: rgb(0, 0, 0, 0.7);
     backdrop-filter: blur(0px);
-=======
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
->>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119
     border-radius: 20px;
     padding: 30px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
-<<<<<<< HEAD
   th, td {
     color: #ffffff !important;
     vertical-align: middle;
@@ -33,14 +27,6 @@ body {
     --bs-table-bg: transparent !important;
     border: transparent !important;
     color: white !important;
-=======
-  .ticket-table th,
-  .ticket-table td {
-    color: #fff !important;
-    vertical-align: middle;
-    background-color: transparent !important;
-    border: none !important;
->>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119
   }
 
   .badge {
@@ -242,7 +228,6 @@ body {
   }
 .margin {
   margin-top: 2%;
-<<<<<<< HEAD
 }
 body, html {
   height: 100%;
@@ -285,6 +270,4 @@ h1 {
 
 p {
   font-size: 1.2rem;
-=======
->>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119
 }

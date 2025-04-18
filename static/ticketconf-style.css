@@ -197,7 +197,6 @@ input[type="list"]:focus {
 }
 
 select.form-select {
-<<<<<<< HEAD
     background-color: #f8f9fa;
     border: 1px solid #ced4da;
     border-radius: 8px;
@@ -246,12 +245,4 @@ h1 {
 
 p {
   font-size: 1.2rem;
-=======
-  background-color: #f8f9fa;
-  border: 1px solid #ced4da;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  padding: 10px;
-  font-size: 1rem;
->>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119
 }
