@@ -14,7 +14,8 @@
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
-    height: 593px;
+    height: 86vh !important;
+    width: 100vw !important;
 }
 .logo-txt {
     color: #000000 !important;
@@ -86,10 +87,9 @@
 .hihi2 {
     width: 100px !important;
     padding-top: 2%;
-    width: 8% !important;
+    width: 15% !important;
     font-size: 18px !important;
-    width: 11% !important;
-}
+  }
 .header-link {
     text-decoration: none !important;
     color: #000000 !important;
