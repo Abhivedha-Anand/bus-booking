@@ -8,6 +8,35 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     </head>
+    
+<script>
+    function validateSearchForm() {
+        const fromStation = document.querySelector('input[name="from-station"]').value.trim();
+        const toStation = document.querySelector('input[name="to-station"]').value.trim();
+
+        if (fromStation === "" || toStation === "") {
+            alert("Please fill in both From and To Locations.");
+            return false;
+        }
+
+        if (fromStation.toLowerCase() === toStation.toLowerCase()) {
+            alert("From and To Locations cannot be the same.");
+            return false;
+        }
+
+        // ✅ Get login status safely from HTML
+        const isLoggedIn = document.getElementById("login-status").dataset.loggedIn === "True";
+        if (!isLoggedIn) {
+            alert("Please login to search for buses.");
+            window.location.href = "{{ url_for('login_user') }}";
+            return false;
+        }
+
+        return true;
+    }
+</script>
+
+    
     <body>
         <header>
             <div class="container-header">
@@ -27,12 +56,30 @@
                     <div class="col-md-1 hihi1"></div>
                     <div class="col-md-1 hihi1"></div>
                     <div class="col-md-1 hihi1"></div>
-                    <div class="col-md-1 hihi2" style="width: 7% !important;margin-left: 4% !important;"><i class="fas fa-percentage"></i><a class="header-link" href="">Offers</a></div>
+                    <div class="col-md-1 hihi2" style="width: 7% !important;margin-left: 4% !important;"></div>
+                    <div class="col-md-1 hihi2"></div>
+                    {% if session.get('user_logged_in') %}
+                    <div class="col-md-1 hihi2" ><i class="fas fa-ticket"></i><a class="header-link" href="{{ url_for('ticket_tracking') }}">Track Tickets</a></div>
+                    <div class="col-md-2 hihi2 dropdown">
+                        <i class="fas fa-user-check"></i>
+                        <a class="header-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Hi, {{ session.get('user_name') }} 
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            <!-- You can add more dropdown items here if needed -->
+                        </ul>
+                    </div>
+                    {% else %}
                     <div class="col-md-1 hihi2"><i class="fas fa-ticket"></i><a class="header-link" href="">Track Tickets</a></div>
-                    <div class="col-md-1 hihi2"><i class="fas fa-headset"></i><a class="header-link" href="">Need Help?</a></div>
-                    <div class="col-md-1 hihi2"><i class="fas fa-user-astronaut"></i><a class="header-link" href="{{ url_for('login_user') }}">Login/Signup</a></div>
+                    <div class="col-md-2 hihi2">
+                        <i class="fas fa-user-astronaut"></i>
+                        <a class="header-link" href="{{ url_for('login_user') }}">Login/Signup</a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
+            <div id="login-status" data-logged-in="{{ session.get('user_logged_in', False) }}"></div>
         </header>
         <div class="video-background">
             <video autoplay muted loop id="bg-video">
@@ -43,7 +90,7 @@
         <div class="bg-img">
             <div class="container">
                 <div class="row" style="padding: 5%;"><div class="col-md-12"></div></div>
-                <form action="{{ url_for('bus_route') }}" method="POST">
+                <form action="{{ url_for('bus_route') }}" method="POST" onsubmit="return validateSearchForm()">
                     <div class="row search-box">
                         <div class="col-md-3" style="width: 315px;">
                             <div class="row from-to-box">
@@ -51,20 +98,12 @@
                                     <i class="fas fa-bus logo-box"></i>
                                 </div>
                                 <div class="col-md-10" style="padding-left: 0px !important;">
-                                    <input type="list" list="buses" class="form-control text-box" placeholder="From Station.." name="from-station" required>
-                                    <datalist id="buses">
-                                        <option value="Ariyalur">
-                                        <option value="Chengalpattu"><option value="Chennai"><option value="Chidambaram">
-                                        <option value="Coimbatore"><option value="Cuddalore"><option value="Dindigul">
-                                        <option value="Erode"><option value="Kanchipuram"><option value="Karaikudi">
-                                        <option value="Karur"><option value="Madurai"><option value="Nagapattinam">
-                                        <option value="Nagercoil"><option value="Namakkal"><option value="Perambalur">
-                                        <option value="Pollachi"><option value="Pudukottai"><option value="Ranipet">
-                                        <option value="Salem"><option value="Sivagangai"><option value="Thanjavur">
-                                        <option value="Theni"><option value="Thiruvallur"><option value="Thoothukudi">
-                                        <option value="Tiruchendur"><option value="Tirunelveli"><option value="Tirupur">
-                                        <option value="Tiruvannamalai"><option value="Trichy"><option value="Vellore">
-                                    </datalist>
+                                    <input type="list" list="places-list" class="form-control text-box" placeholder="From Station.." name="from-station" required>
+                                    <datalist id="places-list">
+                                        {% for place in places %}
+                                            <option value="{{ place }}">
+                                        {% endfor %}
+                                    </datalist>                                    
                                 </div>
                             </div>
                         </div>
@@ -74,33 +113,12 @@
                                     <i class="fas fa-location-arrow logo-box"></i>
                                 </div>
                                 <div class="col-md-10" style="padding-left: 0px !important;">
-                                    <input type="list" list="buses" class="form-control text-box" placeholder="To Station.." name="to-station" required>
-                                    <datalist id="buses">
-                                        <option value="Chennai">
-                                        <option value="Chidambaram">
-                                        <option value="Coimbatore">
-                                        <option value="Dindigul">
-                                        <option value="Erode">
-                                        <option value="Kanchipuram">
-                                        <option value="Kanyakumari">
-                                        <option value="Kumbakonam">
-                                        <option value="Madurai">
-                                        <option value="Nagapattinam">
-                                        <option value="Nagercoil">
-                                        <option value="Perambalur">
-                                        <option value="Pollachi">
-                                        <option value="Salem">
-                                        <option value="Thanjavur">
-                                        <option value="Theni">
-                                        <option value="Thoothukudi">
-                                        <option value="Tiruchendur">
-                                        <option value="Tirunelveli">
-                                        <option value="Tirupur">
-                                        <option value="Trichy">
-                                        <option value="Vellore">
-                                        <option value="Virudhunagar">
-                                            
-                                    </datalist>
+                                    <input type="list" list="places-list" class="form-control text-box" placeholder="To Station.." name="to-station" required>
+                                    <datalist id="places-list">
+                                        {% for place in places %}
+                                            <option value="{{ place }}">
+                                        {% endfor %}
+                                    </datalist> 
                                 </div>
                             </div>
                         </div>
@@ -110,7 +128,7 @@
                                     <i class="fas fa-calendar-alt logo-box"></i>
                                 </div>
                                 <div class="col-md-6" style="padding-left: 0px !important;">
-                                    <input type="date"  class="form-control date-box " name="travel-date" required >
+                                    <input type="date"  class="form-control date-box " name="travel-date" required min="{{ today }}">
                                 </div>
                             </div>
                         </div>
@@ -123,5 +141,6 @@
                 </form>
             </div>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

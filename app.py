@@ -1,20 +1,30 @@
-from flask import Flask, request, render_template, redirect, url_for,flash
+from flask import Flask, request, render_template, redirect, url_for,flash,session
 import pymysql
+from datetime import date
 
 app = Flask(__name__)
 
 db = pymysql.connect(
     host="127.0.0.1",       
     user="root",
-    password="root",
+    password="tamilRAJAN@01",
     database="bus_booking"  
 )
 
 cursor = db.cursor()
 
+<<<<<<< HEAD
+=======
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'
+
+>>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119
 @app.route('/')
 def home():
-    return render_template('home.html') 
+    cursor.execute("SELECT place_name FROM places")
+    places = [row[0] for row in cursor.fetchall()]
+    today = date.today().isoformat()  # gives "YYYY-MM-DD"
+    return render_template('home.html', places=places, today=today)
 
 @app.route('/login', methods=['GET','POST'])
 def login_user():
@@ -26,11 +36,19 @@ def login_user():
         cursor.execute(sql, val)
         result = cursor.fetchone()
         if result:
+            session['user_logged_in'] = True
+            session['user_name'] = result[1] 
             return redirect(url_for('home'))
         else:
             return "Invalid credentials"
     elif request.method == 'GET':
         return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user_logged_in', None)
+    return redirect(url_for('home'))
+
 
 @app.route('/signup', methods=['GET','POST'])
 def signup_user():
@@ -44,27 +62,47 @@ def signup_user():
         val = (user_name, user_email, user_number,user_password)
         cursor.execute(sql, val)
         db.commit()
-
         return redirect(url_for('login_user'))
+    
     elif request.method == 'GET':
         return render_template('signup.html')
 
-@app.route('/bus-route', methods=['GET','POST'])
+@app.route('/bus-route', methods=['GET', 'POST'])
 def bus_route():
+    if not session.get('user_logged_in'):
+        return redirect(url_for('login_user'))
+
     if request.method == 'GET':
-        return render_template('bookticket.html')
+        cursor.execute("SELECT place_name FROM places")
+        all_places = [row[0] for row in cursor.fetchall()]
+        return render_template('bookticket.html', places=all_places)
+
     elif request.method == 'POST':
         bus_from = request.form['from-station']
         bus_to = request.form['to-station']
         travel_date = request.form['travel-date']
-
-
+        print(travel_date)
         sql = """
+<<<<<<< HEAD
                 SELECT b.bus_id, b.bus_name, b.from_place, b.to_place, b.departure_time, b.arrival_time, bf.fare_amount,b.available_seats
                 FROM bus b
                 join bus_fare bf on b.bus_id = bf.bus_id
                 WHERE b.from_place = %s AND b.to_place = %s AND b.travel_date = %s;
                 """
+=======
+            SELECT b.bus_id, b.bus_name, 
+                p1.place_name AS from_place, 
+                p2.place_name AS to_place, 
+                b.departure_time, b.arrival_time, 
+                bf.fare_amount,
+                b.available_seats
+            FROM bus AS b
+            JOIN places AS p1 ON b.from_place_id = p1.place_id
+            JOIN places AS p2 ON b.to_place_id = p2.place_id
+            JOIN bus_fare AS bf ON b.bus_id = bf.bus_id
+            WHERE p1.place_name = %s AND p2.place_name = %s AND b.travel_date = %s;
+        """
+>>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119
 
         val = (bus_from, bus_to, travel_date)
         cursor.execute(sql, val)
@@ -80,9 +118,14 @@ def bus_route():
                 'departure_time': bus[4],
                 'arrival_time': bus[5],
                 'price': bus[6],
+<<<<<<< HEAD
                 'available_seats': bus[7] if bus[7] > 0 else 'No seats available'
+=======
+                'available_seats': bus[7]
+>>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119
             })
         return render_template('busroute.html', buses=bus_list)
+
 
 @app.route('/ticket-confirmation/<int:bus_id>', methods=['POST'])
 def ticket_confirmation(bus_id): 
@@ -113,11 +156,25 @@ def ticket_confirmation(bus_id):
     }]
     total_seat = ticket[0]['adult_count'] + ticket[0]['child_count'] + ticket[0]['infant_count']
     sql = """
+<<<<<<< HEAD
             SELECT bf.fare_amount, b.bus_name, bf.from_place, bf.to_place, b.travel_date
             FROM bus_fare bf
             join bus b
             on b.bus_id = bf.bus_id
             WHERE bf.from_place = %s and bf.to_place = %s;
+=======
+            SELECT 
+            bf.fare_amount, 
+            b.bus_name, 
+            pf.place_name AS from_place, 
+            pt.place_name AS to_place, 
+            b.travel_date
+        FROM bus_fare bf
+        JOIN bus b ON b.bus_id = bf.bus_id
+        JOIN places pf ON b.from_place_id = pf.place_id
+        JOIN places pt ON b.to_place_id = pt.place_id
+        WHERE bf.bus_id = %s;
+>>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119
         """
     val = (bus_detail['from_place'], bus_detail['to_place'])
     cursor.execute(sql, val)
@@ -134,13 +191,20 @@ def ticket_confirmation(bus_id):
 
     }
 
+    cursor.execute("SELECT user_id FROM users WHERE user_name = %s", (ticket[0]['user_name'],))
+    user=cursor.fetchone()
     sql1= """
+<<<<<<< HEAD
             INSERT INTO tickets (bus_id, user_name, travel_date,from_place, to_place,  adult_count, child_count, infant_count, total_seat, total_fare, booking_status) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+=======
+            INSERT INTO tickets (bus_id, user_id, travel_date, adult_count, child_count, infant_count, total_fare, booking_status) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+>>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119
         """
     val1 = (
         bus_id, 
-        ticket[0]['user_name'], 
+        user[0], 
         detail['travel_date'], 
         detail['from_place'],
         detail['to_place'],
@@ -153,6 +217,7 @@ def ticket_confirmation(bus_id):
         )
     cursor.execute(sql1, val1)
     db.commit()
+<<<<<<< HEAD
 
     sql2 = "SELECT ticket_id FROM tickets WHERE bus_id = %s AND user_name = %s AND travel_date = %s AND booking_status = 'Pending'"
     val2 = (bus_id, ticket[0]['user_name'], detail['travel_date']) 
@@ -160,6 +225,20 @@ def ticket_confirmation(bus_id):
     ticket_id = cursor.fetchone()
    
     return render_template('ticketconf.html' , ticket = ticket, detail = detail, ticket_id = ticket_id[0],bus_detail = bus_detail)
+=======
+    sql2 = "SELECT ticket_id FROM tickets WHERE bus_id = %s AND user_name = %s AND travel_date = %s AND booking_status = 'Pending'"
+    sql2 = """
+    SELECT ticket_id 
+    FROM tickets 
+    WHERE bus_id = %s AND user_id = %s AND travel_date = %s AND booking_status = 'Pending'
+"""
+    val2 = (bus_id, user[0], detail['travel_date'])
+
+    cursor.execute(sql2, val2)
+    ticket_id = cursor.fetchone()
+    
+    return render_template('ticketconf.html' , ticket = ticket, detail = detail, ticket_id = ticket_id[0])
+>>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119
 
 @app.route('/book_ticket/<int:bus_id>', methods=['GET'])
 def book_ticket(bus_id):
@@ -178,14 +257,95 @@ def book_ticket(bus_id):
             'arrival_time': bus[5],
             'price': bus[6]
         }
+        cursor.execute('SELECT place_name from places where place_id = %s',bus[2])
+        bus_dict['from_place']=cursor.fetchone()[0]
+        cursor.execute('SELECT place_name from places where place_id = %s',bus[3])
+        bus_dict['to_place']=cursor.fetchone()[0]
         return render_template('bookticket.html', bus=bus_dict)
     
+<<<<<<< HEAD
 @app.route('/booking-success/<int:ticket_id>', methods=['POST'])
 def booking_success(ticket_id):
     sql = "UPDATE tickets SET booking_status = 'Confirmed' WHERE ticket_id = %s and booking_status = 'Pending'" 
     val = (ticket_id,)
     cursor.execute(sql, val)
     db.commit()
+=======
+@app.route('/booking-success', methods=['POST'])
+def booking_success():
+    ticket_id = request.form.get('ticket_id') or request.args.get('ticket_id')  # accepts from form or query
+    if not ticket_id:
+        return "Ticket ID missing", 400
+
+    sql = "UPDATE tickets SET booking_status = 'Confirmed' WHERE ticket_id = %s AND booking_status = 'Pending'" 
+    cursor.execute(sql, (ticket_id,))
+    db.commit()
+
+    # Get updated ticket info
+    sql2 = """
+        SELECT t.ticket_id, u.user_name, b.bus_name, pf.place_name, pt.place_name, t.travel_date,
+               (t.adult_count * bf.fare_amount + t.child_count * (bf.fare_amount / 2)) AS total_fare
+        FROM tickets t
+        JOIN users u ON t.user_id = u.user_id
+        JOIN bus b ON t.bus_id = b.bus_id
+        JOIN bus_fare bf ON bf.bus_id = b.bus_id
+        JOIN places pf ON b.from_place_id = pf.place_id
+        JOIN places pt ON b.to_place_id = pt.place_id
+        WHERE t.ticket_id = %s;
+    """
+    cursor.execute(sql2, (ticket_id,))
+    row = cursor.fetchone()
+
+    if row:
+        ticket = {
+            "ticket_id": row[0],
+            "user_name": row[1],
+            "total_fare": int(row[6])
+        }
+        detail = {
+            "bus_name": row[2],
+            "from_place": row[3],
+            "to_place": row[4],
+            "travel_date": row[5]
+        }
+        return render_template('success.html', ticket=ticket, detail=detail)
+    else:
+        return "Ticket not found", 404
+
+@app.route('/ticket-tracking', methods=['GET'])
+def ticket_tracking():
+    sql = """
+        SELECT 
+            t.ticket_id,
+            t.travel_date,
+            t.booking_status,
+            u.user_name,
+            pf.place_name AS from_place,
+            pt.place_name AS to_place
+        FROM tickets t
+        JOIN users u ON t.user_id = u.user_id
+        JOIN bus b ON t.bus_id = b.bus_id
+        JOIN places pf ON b.from_place_id = pf.place_id
+        JOIN places pt ON b.to_place_id = pt.place_id
+        where u.user_name=  %s
+    """
+    val=(session.get('user_name'),)
+    cursor.execute(sql,val)
+    tickets = cursor.fetchall()
+
+    ticket_list = []
+    for ticket in tickets:
+        ticket_list.append({
+            'ticket_id': ticket[0],
+            'travel_date': ticket[1],
+            'booking_status': ticket[2],
+            'user_name': ticket[3],
+            'from_place': ticket[4],
+            'to_place': ticket[5]
+        })
+    print(ticket_list)
+    return render_template('tickettrack.html', tickets=ticket_list)
+>>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119
 
     sql0 = """
             UPDATE bus

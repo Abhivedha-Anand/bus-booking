@@ -27,6 +27,7 @@
             <div class="col-md-1 hihi1"></div>
             <div class="col-md-1 hihi1"></div>
             <div class="col-md-1 hihi1"></div>
+<<<<<<< HEAD
             <div class="col-md-1 hihi2" style="width: 7% !important;margin-left: 4% !important;"><i class="fas fa-percentage"></i><a class="header-link" href="">Offers</a></div>
             <div class="col-md-1 hihi2"><i class="fas fa-ticket"></i><a class="header-link" href="">Track Tickets</a></div>
             <div class="col-md-1 hihi2"><i class="fas fa-headset"></i><a class="header-link" href="">Need Help?</a></div>
@@ -40,12 +41,39 @@
       Your browser does not support the video tag.
   </video>
 </div>
+=======
+            <div class="col-md-1 hihi2" style="width: 7% !important;margin-left: 4% !important;"></div>
+            <div class="col-md-1 hihi2"></div>
+            {% if session.get('user_logged_in') %}
+                    <div class="col-md-1 hihi2" ><i class="fas fa-ticket"></i><a class="header-link" href="{{ url_for('ticket_tracking') }}">Track Tickets</a></div>
+                    <div class="col-md-2 hihi2 dropdown">
+                        <i class="fas fa-user-check"></i>
+                        <a class="header-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Hi, {{ session.get('user_name') }} 
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            <!-- You can add more dropdown items here if needed -->
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="col-md-1 hihi2"><i class="fas fa-ticket"></i><a class="header-link" href="">Track Tickets</a></div>
+                    <div class="col-md-2 hihi2">
+                        <i class="fas fa-user-astronaut"></i>
+                        <a class="header-link" href="{{ url_for('login_user') }}">Login/Signup</a>
+                    </div>
+                    {% endif %}
+        </div>
+    </div>
+</header>
+>>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119
   <div class="container margin" >
     <h2 class="text-center text-white mb-5">🎫 Ticket Tracker Dashboard</h2>
 
     <div class="glass-card mb-5">
       <h4 class="section-title">Active Tickets</h4>
       <div class="table-responsive">
+<<<<<<< HEAD
           <table class="table table-striped table-hover tb-bg table-table">
             <thead>
               <tr>
@@ -75,10 +103,42 @@
               {% endif %}  
             </tbody>
           </table>
+=======
+        <table class="table table-striped table-hover ticket-table">
+          <thead>
+            <tr>
+              <th>Ticket ID</th>
+              <th style="width: 400px !important;">Route</th>
+              <th>Date</th>
+              <th>Passenger</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ticket in tickets %}
+              {% if ticket.booking_status == "confirmed" %}      
+                <tr>
+                  <td>{{ ticket.ticket_id }}</td>
+                  <td>{{ ticket.from_place }} <i class='fas fa-arrow-right' style='font-size:15px'></i> {{ ticket.to_place }}</td>
+                  <td>{{ ticket.travel_date }}</td>
+                  <td>{{ ticket.user_name }}</td>
+                  <td><span class="badge bg-primary">{{ ticket.booking_status }}</span></td>              
+                </tr>
+          
+              {% endif %}
+            {% endfor %}
+            
+          </tbody>
+        </table>
+>>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> ccf1f0b0dcbd42480a64026010169288e55f1119

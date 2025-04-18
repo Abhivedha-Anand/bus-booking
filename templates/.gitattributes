@@ -1,0 +1,11 @@
+# Set the default behavior to automatically normalize line endings
+* text=auto
+
+# Force bash/sh files to use LF
+*.sh text eol=lf
+
+# Force stylesheets and web files to CRLF for Windows
+*.css text eol=crlf
+*.html text eol=crlf
+*.js text eol=crlf
+*.py text eol=lf
