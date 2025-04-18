@@ -1,1 +1,4 @@
 backup-repo.git/
+__pycache__/
+*.pyc
+
