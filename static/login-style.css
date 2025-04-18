@@ -155,7 +155,7 @@ input[type="list"]:focus {
   overflow-y: auto;
 }
 
-select.form-select{ 
+select.form-select {
   background-color: #f8f9fa;
   border: 1px solid #ced4da;
   border-radius: 8px;
